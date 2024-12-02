@@ -10,7 +10,8 @@ import './index.css';
 // Защищенный маршрут
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useUser();
-  
+  console.log(user)
+
   if (!user) {
     return <Navigate to="/main" />;
   }
@@ -22,33 +23,33 @@ function App() {
   const { user } = useUser();
 
   return (
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Header />
-          <Routes>
-            <Route path="/" element={<Navigate to="/main" replace />} />
-            <Route path="/main" element={<MainPage />} />
-            <Route 
-              path="/requests/my" 
-              element={
-                <ProtectedRoute>
-                  <MyRequestsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/requests/my" 
-              element={
-                <ProtectedRoute>
-                  {user?.role === 'ADMIN' && (
-                    <Route path="/admin" element={<AdminPage />} />
-                  )}
-                </ProtectedRoute>
-              } 
-            />
-          </Routes>
-        </div>
-      </Router>
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <Routes>
+          <Route path="/" element={<Navigate to="/main" replace />} />
+          <Route path="/main" element={<MainPage />} />
+          <Route
+            path="/requests/my"
+            element={
+              <ProtectedRoute>
+                <MyRequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                {user?.role === 'ADMIN' && (
+                  <AdminPage />
+                )}
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

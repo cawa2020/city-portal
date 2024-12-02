@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { useToast } from "./ui/use-toast";
 import { Button } from "./ui/button";
@@ -17,6 +17,18 @@ const CreateRequestForm = () => {
   const { user } = useUser();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [categoryMap, setCategoryMap] = useState<{ id: string, name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCategoryMap = async () => {
+      const response = await fetch('http://localhost:4200/categories');
+      const data = await response.json();
+      console.log(data);
+      setCategoryMap(data);
+    };
+
+    fetchCategoryMap()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,10 +98,9 @@ const CreateRequestForm = () => {
                 <SelectValue placeholder="Выберите категорию" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="roads">Дороги</SelectItem>
-                <SelectItem value="landscaping">Благоустройство</SelectItem>
-                <SelectItem value="lighting">Освещение</SelectItem>
-                <SelectItem value="other">Другое</SelectItem>
+                {categoryMap.map((el) => 
+                  <SelectItem value={el.name}>{el.name}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -119,8 +130,8 @@ const CreateRequestForm = () => {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full"
           disabled={isLoading}
         >

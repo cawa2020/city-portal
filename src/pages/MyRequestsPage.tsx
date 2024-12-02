@@ -23,18 +23,13 @@ interface Request {
   id: number;
   title: string;
   description: string;
-  category: {id: string, name: string};
+  category: string
   status: string;
   photoUrl: string | null;
   date: string;
 }
 
-const statusMap: Record<string, { label: string; className: string }> = {
-  new: { label: 'Новая', className: 'bg-blue-500 hover:bg-blue-600' },
-  inProgress: { label: 'В работе', className: 'bg-yellow-500 hover:bg-yellow-600' },
-  completed: { label: 'Выполнена', className: 'bg-green-500 hover:bg-green-600' },
-  rejected: { label: 'Отклонена', className: 'bg-red-500 hover:bg-red-600' }
-};
+const statusMap: string[] = ['Новая', 'Выполнена', 'Отклонена']
 
 const MyRequestsPage = () => {
   const { user } = useUser();
@@ -89,7 +84,7 @@ const MyRequestsPage = () => {
     }
 
     if (categoryFilter !== 'all') {
-      result = result.filter(request => request.category.name === categoryFilter);
+      result = result.filter(request => request.category === categoryFilter);
     }
 
     setFilteredRequests(result);
@@ -168,8 +163,8 @@ const MyRequestsPage = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Все статусы</SelectItem>
-              {Object.entries(statusMap).map(([value, { label }]) => (
-                <SelectItem key={value} value={value}>
+              {statusMap.map((label) => (
+                <SelectItem key={label} value={label}>
                   {label}
                 </SelectItem>
               ))}
@@ -187,9 +182,9 @@ const MyRequestsPage = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Все категории</SelectItem>
-              {Object.entries(categoryMap).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label.name}
+              {categoryMap.map((el) => (
+                <SelectItem key={el.name} value={el.name}>
+                  {el.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -219,14 +214,14 @@ const MyRequestsPage = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <h3 className="text-lg font-semibold">{request.title}</h3>
-                  <span className={`px-2 py-1 rounded text-sm ${statusMap[request.status]?.className} text-white`}>
-                    {statusMap[request.status]?.label}
+                  <span className={`px-2 py-1 rounded text-sm bg-black text-white`}>
+                    {request.status}
                   </span>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-500 mb-2">{request.description}</p>
-                <p className="text-gray-500">Категория: {request.category.name}</p>
+                <p className="text-gray-500">Категория: {request.category}</p>
                 <p className="text-gray-500">Дата создания: {new Date(request.date).toLocaleString()}</p>
                 <p className="text-gray-500">Статус: {request.status}</p>
               </CardContent>

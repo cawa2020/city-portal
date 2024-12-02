@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
+import { Dialog, DialogTrigger } from '@radix-ui/react-dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Category {
   id: number;
@@ -36,6 +38,8 @@ const AdminPage = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState()
+  const [reason, setReason] = useState()
 
   // Загрузка категорий и заявок
   useEffect(() => {
@@ -133,6 +137,61 @@ const AdminPage = () => {
     }
   };
 
+  const photoHandle = async (e: any) => {
+    const photoUrlAfter = new FormData(e.currentTarget).get('photoUrl');
+
+    // !!!!!!! Добавить на бек update
+
+    const response = await fetch('http://localhost:4200/requests/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(photoUrlAfter),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Ошибка при создании заявки');
+    }
+
+    toast({
+      title: "Заявка обновлена",
+      description: "Заявка успешно обновлена",
+      variant: "default",
+    });
+    //  !!!!!!! Запрос на бекенд
+  }
+
+  const submit = async (e: any) => {
+    const reason = new FormData(e.currentTarget).get('reason');
+
+    // !!!!!!! Добавить на бек update
+
+    const response = await fetch('http://localhost:4200/requests/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reason),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Ошибка при создании заявки');
+    }
+
+    toast({
+      title: "Заявка обновлена",
+      description: "Заявка успешно обновлена",
+      variant: "default",
+    });
+    // Запрос на бекенд
+  }
+
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Панель администратора</h1>
@@ -182,12 +241,34 @@ const AdminPage = () => {
                       <SelectValue placeholder="Выберите статус" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">Новая</SelectItem>
-                      <SelectItem value="completed">Завершена</SelectItem>
-                      <SelectItem value="rejected">Отклонена</SelectItem>
+                      {['Новая', 'Выполнена', 'Отклонена'].map((el) =>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <SelectItem value={el}>{el}</SelectItem>
+                          </DialogTrigger>
+                        </Dialog>
+                      )}
                     </SelectContent>
                   </Select>
                 </TableCell>
+
+                {(request.status === 'Выполнена') &&
+                  <TableCell>
+                    <form onSubmit={photoHandle}>
+                      <Input placeholder='Ссылка на фото' />
+                      <Button>Сохранить</Button>
+                    </form>
+                  </TableCell>
+                }
+
+                {(request.status === 'Отклонена') &&
+                  <TableCell>
+                    <form onSubmit={submit}>
+                      <Textarea name='reason' placeholder='Причина отклонения' />
+                      <Button>Сохранить</Button>
+                    </form>
+                  </TableCell>
+                }
               </TableRow>
             ))}
           </TableBody>
