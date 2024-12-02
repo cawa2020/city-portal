@@ -29,7 +29,7 @@ const Header = () => {
     try {
       const formData = new FormData(e.currentTarget);
       const loginData = {
-        email: formData.get('email'),
+        login: formData.get('login'),
         password: formData.get('password'),
       };
 
@@ -140,6 +140,11 @@ const Header = () => {
             <a href="/">
               <Button>Главная</Button>
             </a>
+            {user?.role === 'ADMIN' && (
+              <a href="/admin">
+                <Button>Админка</Button>
+              </a>
+            )}
             {user ? (
               <>
                 <a href="/requests/my">
@@ -171,12 +176,12 @@ const Header = () => {
                       <form onSubmit={handleLogin} className="space-y-4">
                         <div className="grid w-full items-center gap-4">
                           <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="login-email">Email</Label>
+                            <Label htmlFor="login">Логин</Label>
                             <Input
-                              id="login-email"
-                              name="email"
-                              type="email"
-                              placeholder="name@example.com"
+                              id="login"
+                              name="login"
+                              type="login"
+                              placeholder="username"
                               required
                             />
                           </div>
@@ -190,6 +195,7 @@ const Header = () => {
                               required
                             />
                           </div>
+
                         </div>
                         <div className="flex justify-end">
                           <Button 
@@ -241,6 +247,16 @@ const Header = () => {
                             <Input
                               id="register-password"
                               name="password"
+                              type="password"
+                              placeholder="Введите пароль"
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="password-repeat">Повторите пароль</Label>
+                            <Input
+                              id="password-repeat"
+                              name="password-repeat"
                               type="password"
                               placeholder="Введите пароль"
                               required

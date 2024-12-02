@@ -4,6 +4,7 @@ import Header from './components/Header';
 import MainPage from './pages/MainPage';
 import { useUser } from './context/UserContext';
 import MyRequestsPage from './pages/MyRequestsPage';
+import AdminPage from './pages/AdminPage';
 import './index.css';
 
 // Защищенный маршрут
@@ -18,9 +19,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+  const { user } = useUser();
+
   return (
-    <Router>
-      <UserProvider>
+      <Router>
         <div className="min-h-screen bg-background">
           <Header />
           <Routes>
@@ -34,10 +36,19 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/requests/my" 
+              element={
+                <ProtectedRoute>
+                  {user?.role === 'ADMIN' && (
+                    <Route path="/admin" element={<AdminPage />} />
+                  )}
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
-      </UserProvider>
-    </Router>
+      </Router>
   );
 }
 

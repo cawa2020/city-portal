@@ -23,7 +23,7 @@ interface Request {
   id: number;
   title: string;
   description: string;
-  category: string;
+  category: {id: string, name: string};
   status: string;
   photoUrl: string | null;
   date: string;
@@ -36,13 +36,6 @@ const statusMap: Record<string, { label: string; className: string }> = {
   rejected: { label: 'Отклонена', className: 'bg-red-500 hover:bg-red-600' }
 };
 
-const categoryMap: Record<string, string> = {
-  roads: 'Дороги',
-  landscaping: 'Благоустройство',
-  lighting: 'Освещение',
-  other: 'Другое'
-};
-
 const MyRequestsPage = () => {
   const { user } = useUser();
   const [requests, setRequests] = useState<Request[]>([]);
@@ -52,8 +45,16 @@ const MyRequestsPage = () => {
   const [deleteRequestId, setDeleteRequestId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [categoryMap, setCategoryMap] = useState<{id: string, name: string}[]>([]);
 
   useEffect(() => {
+    const fetchCategoryMap = async () => {
+      const response = await fetch('http://localhost:4200/categories');
+      const data = await response.json();
+      console.log(data);
+      setCategoryMap(data);
+    };
+
     const fetchMyRequests = async () => {
       if (!user?.id) return;
 
@@ -77,7 +78,8 @@ const MyRequestsPage = () => {
     };
 
     fetchMyRequests();
-  }, [user, toast]);
+    fetchCategoryMap();
+  }, [user]);
 
   useEffect(() => {
     let result = [...requests];
@@ -87,7 +89,7 @@ const MyRequestsPage = () => {
     }
 
     if (categoryFilter !== 'all') {
-      result = result.filter(request => request.category === categoryFilter);
+      result = result.filter(request => request.category.name === categoryFilter);
     }
 
     setFilteredRequests(result);
@@ -187,7 +189,7 @@ const MyRequestsPage = () => {
               <SelectItem value="all">Все категории</SelectItem>
               {Object.entries(categoryMap).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  {label.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -224,17 +226,20 @@ const MyRequestsPage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-500 mb-2">{request.description}</p>
-                <p className="text-gray-500">Категория: {categoryMap[request.category]}</p>
+                <p className="text-gray-500">Категория: {request.category.name}</p>
                 <p className="text-gray-500">Дата создания: {new Date(request.date).toLocaleString()}</p>
+                <p className="text-gray-500">Статус: {request.status}</p>
               </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button 
+              {request.status === 'Новая' && (
+                <CardFooter className="flex justify-between">
+                  <Button 
                   variant="outline" 
                   onClick={() => openDeleteDialog(request.id)}
                 >
                   Удалить
                 </Button>
-              </CardFooter>
+                </CardFooter>
+              )}
             </Card>
           ))}
         </div>

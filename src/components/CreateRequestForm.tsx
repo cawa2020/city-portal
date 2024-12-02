@@ -52,6 +52,7 @@ const CreateRequestForm = () => {
         variant: "default",
       });
 
+      window.location.reload()
     } catch (error) {
       toast({
         title: "Ошибка",
