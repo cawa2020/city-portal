@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Dialog, DialogTrigger } from '@radix-ui/react-dialog';
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from '../components/ui/textarea';
 
 interface Category {
   id: number;
@@ -30,6 +30,8 @@ interface Request {
   title: string;
   status: string;
   date: string;
+  photoUrlAfter?: string;
+  reason?: string;
 }
 
 const AdminPage = () => {
@@ -137,17 +139,18 @@ const AdminPage = () => {
     }
   };
 
-  const photoHandle = async (e: any) => {
+  const photoHandle = async (requestId: number, e: any) => {
+    e.preventDefault();
     const photoUrlAfter = new FormData(e.currentTarget).get('photoUrl');
 
     // !!!!!!! Добавить на бек update
 
-    const response = await fetch('http://localhost:4200/requests/update', {
-      method: 'POST',
+    const response = await fetch(`http://localhost:4200/requests/${requestId}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(photoUrlAfter),
+      body: JSON.stringify({ photoUrlAfter: photoUrlAfter }),
     });
 
     const data = await response.json();
@@ -164,17 +167,18 @@ const AdminPage = () => {
     //  !!!!!!! Запрос на бекенд
   }
 
-  const submit = async (e: any) => {
+  const submit = async (requestId: number, e: any) => {
+    e.preventDefault();
     const reason = new FormData(e.currentTarget).get('reason');
 
     // !!!!!!! Добавить на бек update
 
-    const response = await fetch('http://localhost:4200/requests/update', {
-      method: 'POST',
+    const response = await fetch(`http://localhost:4200/requests/${requestId}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(reason),
+      body: JSON.stringify({ reason: reason }),
     });
 
     const data = await response.json();
@@ -222,7 +226,6 @@ const AdminPage = () => {
               <TableHead>Название</TableHead>
               <TableHead>Дата создания</TableHead>
               <TableHead>Статус</TableHead>
-              <TableHead>Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -231,7 +234,6 @@ const AdminPage = () => {
                 <TableCell>{request.id}</TableCell>
                 <TableCell>{request.title}</TableCell>
                 <TableCell>{new Date(request.date).toLocaleDateString()}</TableCell>
-                <TableCell>{request.status}</TableCell>
                 <TableCell>
                   <Select
                     onValueChange={(value) => handleStatusChange(request.id, value)}
@@ -254,8 +256,8 @@ const AdminPage = () => {
 
                 {(request.status === 'Выполнена') &&
                   <TableCell>
-                    <form onSubmit={photoHandle}>
-                      <Input placeholder='Ссылка на фото' />
+                    <form onSubmit={(e) => photoHandle(request.id, e)} className='flex gap-2'>
+                      <Input value={request.photoUrlAfter} name='photoUrl' placeholder='Ссылка на фото' />
                       <Button>Сохранить</Button>
                     </form>
                   </TableCell>
@@ -263,8 +265,8 @@ const AdminPage = () => {
 
                 {(request.status === 'Отклонена') &&
                   <TableCell>
-                    <form onSubmit={submit}>
-                      <Textarea name='reason' placeholder='Причина отклонения' />
+                    <form onSubmit={(e) => submit(request.id, e)} className='flex gap-2'>
+                      <Textarea value={request.reason} name='reason' placeholder='Причина отклонения' />
                       <Button>Сохранить</Button>
                     </form>
                   </TableCell>
